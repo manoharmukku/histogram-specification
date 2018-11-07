@@ -11,6 +11,7 @@ import numpy as np
 import cv2
 from scipy.stats import uniform
 from scipy.stats import norm
+from scipy.stats import gamma
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -79,14 +80,29 @@ def main(argv):
         for i in range(len(target_hist)):
             cum += target_hist[i]
             cum_target_hist.append(cum)
-            
+
     elif (target_name == "normal"):
-        # Create normal distribution object
+        # Create standard normal distribution object
         norm_dist = norm(0, 1)
 
         # Calculate the target histogram
         for i in range(0, 256):
             x = norm_dist.pdf(i)
+            target_hist.append(x)
+
+        # Calculate the cumulative target histogram
+        cum = 0.0
+        for i in range(len(target_hist)):
+            cum += target_hist[i]
+            cum_target_hist.append(cum)
+
+    elif (target_name == "gamma"):
+        # Create gamma distribution object
+        gamma_dist = gamma(0.5, 0, 1.0)
+
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = gamma_dist.pdf(i)
             target_hist.append(x)
 
         # Calculate the cumulative target histogram
