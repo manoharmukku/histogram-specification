@@ -95,10 +95,13 @@ def main(argv):
 
         lookup[i] = min_j
 
-    # Update the img's pixel values using the lookup table
+    # Update the img's pixel values to target specification using the lookup table
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             img[i][j] = lookup[img[i][j]]
+
+    # Write the target image to a png file
+    cv2.imwrite('images/target.png', img)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
