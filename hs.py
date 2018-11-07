@@ -10,6 +10,7 @@ import getopt
 import numpy as np
 import cv2
 from scipy.stats import uniform
+from scipy.stats import norm
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -62,7 +63,6 @@ def main(argv):
     target_hist = []
     cum_target_hist = []
 
-    # Calculate the target histogram
     if (target_name == "uniform"):
         # Create uniform distribution object
         unif_dist = uniform(0, 246)
@@ -79,7 +79,21 @@ def main(argv):
         for i in range(len(target_hist)):
             cum += target_hist[i]
             cum_target_hist.append(cum)
+            
+    elif (target_name == "normal"):
+        # Create normal distribution object
+        norm_dist = norm(0, 1)
 
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = norm_dist.pdf(i)
+            target_hist.append(x)
+
+        # Calculate the cumulative target histogram
+        cum = 0.0
+        for i in range(len(target_hist)):
+            cum += target_hist[i]
+            cum_target_hist.append(cum)
 
     # Obtain the mapping from the input hist to target hist
     lookup = {}
