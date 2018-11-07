@@ -80,6 +80,7 @@ def main(argv):
             cum += target_hist[i]
             cum_target_hist.append(cum)
 
+
     # Obtain the mapping from the input hist to target hist
     lookup = {}
     for i in range(len(cum_input_hist)):
@@ -94,9 +95,10 @@ def main(argv):
 
         lookup[i] = min_j
 
-    
-
-
+    # Update the img's pixel values using the lookup table
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            img[i][j] = lookup[img[i][j]]
 
 if __name__ == "__main__":
     main(sys.argv[1:])
