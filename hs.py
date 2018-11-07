@@ -9,6 +9,7 @@ import sys
 import getopt
 import numpy as np
 import cv2
+from scipy.stats import uniform
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -39,7 +40,7 @@ def get_arguments(argv):
 
 def main(argv):
     # Get and parse the command line arguments
-    image_loc, target_hist = get_arguments(argv)
+    image_loc, target_name = get_arguments(argv)
 
     # Read the image
     img = cv2.imread(image_loc, 0)
@@ -57,6 +58,45 @@ def main(argv):
     for i in range(len(input_hist)):
         cum += input_hist[i][0]
         cum_input_hist.append(cum)
+
+    target_hist = []
+    cum_target_hist = []
+
+    # Calculate the target histogram
+    if (target_name == "uniform"):
+        # Create uniform distribution object
+        unif_dist = uniform(0, 246)
+
+        # Calculate the target histogram
+        for i in range(0, 246):
+            x = unif_dist.pdf(i)
+            target_hist.append(x)
+        for i in range(246, 256):
+            target_hist.append(0)
+
+        # Calculate the cumulative target histogram
+        cum = 0.0
+        for i in range(len(target_hist)):
+            cum += target_hist[i]
+            cum_target_hist.append(cum)
+
+    # Obtain the mapping from the input hist to target hist
+    lookup = {}
+    for i in range(len(cum_input_hist)):
+        min_val = abs(cum_target_hist[0] - cum_input_hist[i])
+        min_j = 0
+
+        for j in range(1, len(cum_target_hist)):
+            val = abs(cum_target_hist[j] - cum_input_hist[i])
+            if (val < min_val):
+                min_val = val
+                min_j = j
+
+        lookup[i] = min_j
+
+    
+
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
