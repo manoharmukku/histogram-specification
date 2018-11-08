@@ -327,7 +327,7 @@ def main(argv):
     # Calculate the specificated images' histogram
     spec_hist = cv2.calcHist([spec_img], [0], None, [256], [0,256])
 
-    # Normalize the input histogram
+    # Normalize the specificated histogram
     total = sum(spec_hist)
     spec_hist /= total
 
@@ -336,12 +336,12 @@ def main(argv):
     for i in range(0,256):
         cum_input_hist2[i][0] = cum_input_hist[i]
 
-    # Calculate the cum target histogram
-    cum_target_hist2 = np.ndarray(shape=(256,1))
+    # Calculate the cum transformed histogram
+    cum_spec_hist = np.ndarray(shape=(256,1))
     cum = 0.0
     for i in range(0,256):
         cum += spec_hist[i][0]
-        cum_target_hist2[i][0] = cum
+        cum_spec_hist[i][0] = cum
 
     cum_target_hist3 = np.ndarray(shape=(256,1))
     cum = 0.0
@@ -366,7 +366,7 @@ def main(argv):
 
     plt.subplot(2, 3, 5)
     plt.title('Transformed cdf')
-    plt.plot(cum_target_hist2)
+    plt.plot(cum_spec_hist)
 
     plt.subplot(2, 3, 6)
     plt.title('Target cdf')
