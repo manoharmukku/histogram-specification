@@ -15,6 +15,7 @@ from scipy.stats import gamma
 from scipy.stats import weibull_min
 from scipy.stats import beta
 from scipy.stats import lognorm
+from matplotlib import pyplot as plt
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -64,8 +65,8 @@ def main(argv):
         cum += input_hist[i][0]
         cum_input_hist.append(cum)
 
-    # Calculate the target histogram for diff dist's
-    target_hist = []
+    # Calculate the target dist for diff dist's
+    target_dist = []
     if (target_name == "uniform"):
         # Create uniform distribution object
         unif_dist = uniform(0, 246)
@@ -73,9 +74,9 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 246):
             x = unif_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
         for i in range(246, 256):
-            target_hist.append(0)
+            target_dist.append(0)
     elif (target_name == "normal"):
         # Create standard normal distribution object
         norm_dist = norm(0, 1)
@@ -83,7 +84,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = norm_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "gamma"):
         # Create gamma distribution object
         gamma_dist = gamma(0.5, 0, 1.0)
@@ -91,7 +92,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = gamma_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "weibull"):
         # Create weibull distribution object
         gamma_dist = gamma(0.5, 0, 1.0)
@@ -99,7 +100,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = gamma_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "beta1"):
         # Create beta distribution object
         beta_dist = beta(0.5, 0.5)
@@ -107,7 +108,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = beta_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "beta2"):
         # Create beta distribution object
         beta_dist = beta(5, 1)
@@ -115,7 +116,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = beta_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "beta3"):
         # Create beta distribution object
         beta_dist = beta(8, 2)
@@ -123,7 +124,7 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = beta_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
     elif (target_name == "lognorm"):
         # Create lognorm distribution object
         lognorm_dist = lognorm(1)
@@ -131,13 +132,19 @@ def main(argv):
         # Calculate the target histogram
         for i in range(0, 256):
             x = lognorm_dist.pdf(i)
-            target_hist.append(x)
+            target_dist.append(x)
+
+
+    # Calculate the target histogram
+    target_hist = np.ndarray(shape=(256,1))
+    for i in range(0,256):
+        target_hist[i][0] = target_dist[i]
 
     # Calculate the cumulative target histogram
     cum_target_hist = []
     cum = 0.0
     for i in range(len(target_hist)):
-        cum += target_hist[i]
+        cum += target_hist[i][0]
         cum_target_hist.append(cum)
 
     # Obtain the mapping from the input hist to target hist
@@ -169,6 +176,11 @@ def main(argv):
     numpy_horiz = np.hstack((input_img, target_img))
     cv2.imshow('Input image ------------------------ Target image', numpy_horiz)
     cv2.waitKey()
+
+    # Plot the input and the target histogram in one plot
+    plt.plot(input_hist)
+    plt.plot(target_hist)
+    plt.show()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
