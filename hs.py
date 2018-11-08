@@ -12,6 +12,9 @@ import cv2
 from scipy.stats import uniform
 from scipy.stats import norm
 from scipy.stats import gamma
+from scipy.stats import weibull_min
+from scipy.stats import beta
+from scipy.stats import lognorm
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -61,9 +64,8 @@ def main(argv):
         cum += input_hist[i][0]
         cum_input_hist.append(cum)
 
+    # Calculate the target histogram for diff dist's
     target_hist = []
-    cum_target_hist = []
-
     if (target_name == "uniform"):
         # Create uniform distribution object
         unif_dist = uniform(0, 246)
@@ -74,13 +76,6 @@ def main(argv):
             target_hist.append(x)
         for i in range(246, 256):
             target_hist.append(0)
-
-        # Calculate the cumulative target histogram
-        cum = 0.0
-        for i in range(len(target_hist)):
-            cum += target_hist[i]
-            cum_target_hist.append(cum)
-
     elif (target_name == "normal"):
         # Create standard normal distribution object
         norm_dist = norm(0, 1)
@@ -89,13 +84,6 @@ def main(argv):
         for i in range(0, 256):
             x = norm_dist.pdf(i)
             target_hist.append(x)
-
-        # Calculate the cumulative target histogram
-        cum = 0.0
-        for i in range(len(target_hist)):
-            cum += target_hist[i]
-            cum_target_hist.append(cum)
-
     elif (target_name == "gamma"):
         # Create gamma distribution object
         gamma_dist = gamma(0.5, 0, 1.0)
@@ -104,12 +92,53 @@ def main(argv):
         for i in range(0, 256):
             x = gamma_dist.pdf(i)
             target_hist.append(x)
+    elif (target_name == "weibull"):
+        # Create weibull distribution object
+        gamma_dist = gamma(0.5, 0, 1.0)
 
-        # Calculate the cumulative target histogram
-        cum = 0.0
-        for i in range(len(target_hist)):
-            cum += target_hist[i]
-            cum_target_hist.append(cum)
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = gamma_dist.pdf(i)
+            target_hist.append(x)
+    elif (target_name == "beta1"):
+        # Create beta distribution object
+        beta_dist = beta(0.5, 0.5)
+
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = beta_dist.pdf(i)
+            target_hist.append(x)
+    elif (target_name == "beta2"):
+        # Create beta distribution object
+        beta_dist = beta(5, 1)
+
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = beta_dist.pdf(i)
+            target_hist.append(x)
+    elif (target_name == "beta3"):
+        # Create beta distribution object
+        beta_dist = beta(8, 2)
+
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = beta_dist.pdf(i)
+            target_hist.append(x)
+    elif (target_name == "lognorm"):
+        # Create lognorm distribution object
+        lognorm_dist = lognorm(1)
+
+        # Calculate the target histogram
+        for i in range(0, 256):
+            x = lognorm_dist.pdf(i)
+            target_hist.append(x)
+
+    # Calculate the cumulative target histogram
+    cum_target_hist = []
+    cum = 0.0
+    for i in range(len(target_hist)):
+        cum += target_hist[i]
+        cum_target_hist.append(cum)
 
     # Obtain the mapping from the input hist to target hist
     lookup = {}
