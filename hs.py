@@ -47,7 +47,7 @@ def main(argv):
     # Get and parse the command line arguments
     image_loc, target_name = get_arguments(argv)
 
-    # Read the image
+    # Read the input image
     img = cv2.imread(image_loc, 0)
 
     # Calculate the input images' histogram
@@ -154,13 +154,21 @@ def main(argv):
 
         lookup[i] = min_j
 
-    # Update the img's pixel values to target specification using the lookup table
+    # Create the target image using the img's pixel values and the lookup table
+    spec_img = img.copy()
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            img[i][j] = lookup[img[i][j]]
+            spec_img[i][j] = lookup[img[i][j]]
 
     # Write the target image to a png file
-    cv2.imwrite('images/target.png', img)
+    cv2.imwrite('images/target.png', spec_img)
+
+    # Plot the input image and the target image in one plot
+    input_img = cv2.resize(img, (0,0), None, 0.25, 0.25)
+    target_img = cv2.resize(spec_img, (0,0), None, 0.25, 0.25)
+    numpy_horiz = np.hstack((input_img, target_img))
+    cv2.imshow('Input image ------------------------ Target image', numpy_horiz)
+    cv2.waitKey()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
