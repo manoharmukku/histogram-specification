@@ -1,6 +1,6 @@
 # Histogram Specification Implementation
 
-###### Images source:
+###### Source of images:
 
 - https://unsplash.com/search/photos/grayscale
 
