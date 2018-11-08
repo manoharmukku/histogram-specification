@@ -19,6 +19,22 @@ from scipy.stats import lognorm
 from scipy.stats import laplace
 from matplotlib import pyplot as plt
 
+def help():
+    print ("usage: $ python hs.py -i image_loc -t target_dist_name_or_loc")
+    print ("Following are the target distributions:")
+    print ("---------------------------------------")
+    print ("1. Uniform")
+    print ("2. Normal")
+    print ("3. Rayleigh")
+    print ("4. Gamma")
+    print ("5. Weibull")
+    print ("6. Beta1")
+    print ("7. Beta2")
+    print ("8. Lognorm")
+    print ("9. Laplace")
+    print ("10. Beta3")
+    print ("11. Target image")
+
 def get_arguments(argv):
     # Get the command line arguments
     try:
@@ -270,7 +286,6 @@ def main(argv):
         # Normalize the target histogram
         total = sum(target_hist)
         target_hist /= total
-        
 
     # Calculate the cumulative target histogram
     cum_target_hist = []
