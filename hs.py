@@ -11,10 +11,12 @@ import numpy as np
 import cv2
 from scipy.stats import uniform
 from scipy.stats import norm
+from scipy.stats import rayleigh
 from scipy.stats import gamma
 from scipy.stats import weibull_min
 from scipy.stats import beta
 from scipy.stats import lognorm
+from scipy.stats import laplace
 from matplotlib import pyplot as plt
 
 def get_arguments(argv):
@@ -65,6 +67,12 @@ def main(argv):
         cum += input_hist[i][0]
         cum_input_hist.append(cum)
 
+    # Calculate the variance of the image
+    input_img_var = np.var(img)
+
+    # Calculate the variance of the image square
+    input_img_sqr_var = np.var(img**2)
+
     # Calculate the target dist for diff dist's
     target_dist = []
     target_hist = None
@@ -90,83 +98,111 @@ def main(argv):
 
         # Calculate the target distribution
         for i in range(0, 256):
-            x = norm_dist.pdf(i)
+            x = norm_dist.pdf(i/42.0 - 3)
             target_dist.append(x)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
+
+    elif (target_name == "rayleigh"):
+        # Create rayleigh distribution object
+        rayleigh_dist = rayleigh(0.5)
+
+        # Calculate the target distribution
+        for i in range(0, 256):
+            x = rayleigh_dist.pdf(i/128.0)
+            target_dist.append(x)
+
+        # Calculate the target histogram
+        target_hist = np.ndarray(shape=(256,1))
+        for i in range(0,256):
+            target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
 
     elif (target_name == "gamma"):
         # Create gamma distribution object
         gamma_dist = gamma(0.5, 0, 1.0)
 
         # Calculate the target distribution
-        for i in range(0, 256):
-            x = gamma_dist.pdf(i)
+        target_dist.append(1)
+        for i in range(1, 256):
+            x = gamma_dist.pdf(i/256.0)
             target_dist.append(x)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
 
     elif (target_name == "weibull"):
         # Create weibull distribution object
-        gamma_dist = gamma(0.5, 0, 1.0)
+        weibull_dist = weibull_min(c=1.4, scale=input_img_var)
 
         # Calculate the target distribution
         for i in range(0, 256):
-            x = gamma_dist.pdf(i)
+            x = weibull_dist.pdf(i/256.0)
             target_dist.append(x)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
 
     elif (target_name == "beta1"):
         # Create beta distribution object
         beta_dist = beta(0.5, 0.5)
 
         # Calculate the target distribution
-        for i in range(0, 256):
-            x = beta_dist.pdf(i)
+        target_dist.append(6)
+        for i in range(1, 255):
+            x = beta_dist.pdf(i/256.0)
             target_dist.append(x)
+        target_dist.append(6)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
 
     elif (target_name == "beta2"):
         # Create beta distribution object
         beta_dist = beta(5, 1)
 
         # Calculate the target distribution
-        for i in range(0, 256):
-            x = beta_dist.pdf(i)
+        for i in range(0, 255):
+            x = beta_dist.pdf(i/256.0)
             target_dist.append(x)
+        target_dist.append(6)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
 
-    elif (target_name == "beta3"):
-        # Create beta distribution object
-        beta_dist = beta(8, 2)
-
-        # Calculate the target distribution
-        for i in range(0, 256):
-            x = beta_dist.pdf(i)
-            target_dist.append(x)
-
-        # Calculate the target histogram
-        target_hist = np.ndarray(shape=(256,1))
-        for i in range(0,256):
-            target_hist[i][0] = target_dist[i]
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
 
     elif (target_name == "lognorm"):
         # Create lognorm distribution object
@@ -174,15 +210,57 @@ def main(argv):
 
         # Calculate the target distribution
         for i in range(0, 256):
-            x = lognorm_dist.pdf(i)
+            x = lognorm_dist.pdf(i/100.0)
             target_dist.append(x)
 
         # Calculate the target histogram
         target_hist = np.ndarray(shape=(256,1))
         for i in range(0,256):
             target_hist[i][0] = target_dist[i]
-            
-    else:
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
+
+    elif (target_name == "laplace"):
+        # Create lognorm distribution object
+        laplace_dist = laplace(4)
+
+        # Calculate the target distribution
+        target_dist.append(0)
+        for i in range(1, 256):
+            x = laplace_dist.pdf(i/256.0)
+            target_dist.append(x)
+
+        # Calculate the target histogram
+        target_hist = np.ndarray(shape=(256,1))
+        for i in range(0,256):
+            target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
+
+    elif (target_name == "beta3"):
+        # Create beta distribution object
+        beta_dist = beta(8, 2)
+
+        # Calculate the target distribution
+        for i in range(0, 255):
+            x = beta_dist.pdf(i/256.0)
+            target_dist.append(x)
+        target_dist.append(0)
+
+        # Calculate the target histogram
+        target_hist = np.ndarray(shape=(256,1))
+        for i in range(0,256):
+            target_hist[i][0] = target_dist[i]
+
+        # Normalize the target histogram
+        total = sum(target_hist)
+        target_hist /= total
+
+    else: # Image is a target distribution
         # Read the image
         target_dist = cv2.imread(target_name, 0)
 
@@ -192,6 +270,7 @@ def main(argv):
         # Normalize the target histogram
         total = sum(target_hist)
         target_hist /= total
+        
 
     # Calculate the cumulative target histogram
     cum_target_hist = []
@@ -230,9 +309,53 @@ def main(argv):
     cv2.imshow('Input image ------------------------ Target image', numpy_horiz)
     cv2.waitKey()
 
-    # Plot the input and the target histogram in one plot
+    # Calculate the specificated images' histogram
+    spec_hist = cv2.calcHist([spec_img], [0], None, [256], [0,256])
+
+    # Normalize the input histogram
+    total = sum(spec_hist)
+    spec_hist /= total
+
+    # Calculate the cum input histogram
+    cum_input_hist2 = np.ndarray(shape=(256,1))
+    for i in range(0,256):
+        cum_input_hist2[i][0] = cum_input_hist[i]
+
+    # Calculate the cum target histogram
+    cum_target_hist2 = np.ndarray(shape=(256,1))
+    cum = 0.0
+    for i in range(0,256):
+        cum += spec_hist[i][0]
+        cum_target_hist2[i][0] = cum
+
+    cum_target_hist3 = np.ndarray(shape=(256,1))
+    cum = 0.0
+    for i in range(0,256):
+        cum_target_hist3[i][0] = cum_target_hist[i]
+
+    plt.subplot(2, 3, 1)
+    plt.title('Original hist')
     plt.plot(input_hist)
+
+    plt.subplot(2, 3, 2)
+    plt.title('Original cdf')
+    plt.plot(cum_input_hist2)
+
+    plt.subplot(2, 3, 3)
+    plt.title('Target pdf')
     plt.plot(target_hist)
+
+    plt.subplot(2, 3, 4)
+    plt.title('Transformed hist')
+    plt.plot(spec_hist)
+
+    plt.subplot(2, 3, 5)
+    plt.title('Transformed cdf')
+    plt.plot(cum_target_hist2)
+
+    plt.subplot(2, 3, 6)
+    plt.title('Target cdf')
+    plt.plot(cum_target_hist3)
     plt.show()
 
 if __name__ == "__main__":
