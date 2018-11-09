@@ -322,7 +322,7 @@ def main(argv):
     target_img = cv2.resize(spec_img, (0,0), None, 0.25, 0.25)
     numpy_horiz = np.hstack((input_img, target_img))
     cv2.imshow('Input image ------------------------ Target image', numpy_horiz)
-    cv2.waitKey()
+    cv2.waitKey(25)
 
     # Calculate the specificated images' histogram
     spec_hist = cv2.calcHist([spec_img], [0], None, [256], [0,256])
