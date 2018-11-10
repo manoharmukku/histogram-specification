@@ -63,6 +63,12 @@ def main(argv):
     # Read the input image
     img = cv2.imread(image_loc, 0)
 
+    # Check if image exists or not
+    if (img is None):
+        print ("Cannot open {} image".format(image_loc))
+        print ("Make sure you provide the correct image path")
+        sys.exit(2)
+
     # Calculate the input images' histogram
     input_hist = cv2.calcHist([img], [0], None, [256], [0,256])
 
@@ -300,9 +306,15 @@ def main(argv):
         total = sum(target_hist)
         target_hist /= total
 
-    else: # Image is a target distribution
+    else: # Image itself is a target distribution case
         # Read the image
         target_dist = cv2.imread(target_name, 0)
+
+        # Check if image is read or not
+        if (target_dist is None):
+            print ("{} is not a valid target name (or) image does not exist".format(target_name))
+            print ("Make sure you give correct target name or correct target image location")
+            sys.exit(2)
 
         # Create target histogram from the image
         target_hist = cv2.calcHist([target_dist], [0], None, [256], [0,256])
