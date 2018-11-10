@@ -9,31 +9,25 @@ import sys
 import getopt
 import numpy as np
 import cv2
-from scipy.stats import uniform
-from scipy.stats import norm
-from scipy.stats import rayleigh
-from scipy.stats import gamma
-from scipy.stats import weibull_min
-from scipy.stats import beta
-from scipy.stats import lognorm
-from scipy.stats import laplace
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 def help():
-    print ("usage: $ python hs.py -i image_loc -t target_dist_name_or_loc")
-    print ("Following are the target distributions:")
-    print ("---------------------------------------")
-    print ("1. Uniform")
-    print ("2. Normal")
-    print ("3. Rayleigh")
-    print ("4. Gamma")
-    print ("5. Weibull")
-    print ("6. Beta1")
-    print ("7. Beta2")
-    print ("8. Lognorm")
-    print ("9. Laplace")
-    print ("10. Beta3")
-    print ("11. Target image")
+    print ("-------------------------------------------------------------")
+    print ("Usage: $ python hs.py -i image_loc -t target_dist_name_or_loc")
+    print ("-------------------------------------------------------------")
+    print ("Following are the target distributions names to use:")
+    print ("----------------------------------------------------")
+    print ("uniform => Uniform distribution")
+    print ("normal => Normal distribution")
+    print ("rayleigh => Rayleigh distribution")
+    print ("gamma => Gamma distribution")
+    print ("weibull => Weibull distribution")
+    print ("beta1 => Beta(a=b=0.5) distribution")
+    print ("beta2 => Beta(a=5,b=1) distribution")
+    print ("lognorm => Lognorm distribution")
+    print ("laplace => Laplace distribution")
+    print ("beta3 => Beta(a=8,b=2) distribution")
+    print ("target_image_loc => Target image location")
 
 def get_arguments(argv):
     # Get the command line arguments
@@ -93,6 +87,9 @@ def main(argv):
     target_dist = []
     target_hist = None
     if (target_name == "uniform"):
+        # Import the package of the target distribution
+        from scipy.stats import uniform
+
         # Create uniform distribution object
         unif_dist = uniform(0, 246)
 
@@ -109,6 +106,9 @@ def main(argv):
             target_hist[i][0] = target_dist[i]
 
     elif (target_name == "normal"):
+        # Import the package of the target distribution
+        from scipy.stats import norm
+
         # Create standard normal distribution object
         norm_dist = norm(0, 1)
 
@@ -127,6 +127,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "rayleigh"):
+        # Import the package of the target distribution
+        from scipy.stats import rayleigh
+
         # Create rayleigh distribution object
         rayleigh_dist = rayleigh(0.5)
 
@@ -145,6 +148,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "gamma"):
+        # Import the package of the target distribution
+        from scipy.stats import gamma
+
         # Create gamma distribution object
         gamma_dist = gamma(0.5, 0, 1.0)
 
@@ -164,6 +170,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "weibull"):
+        # Import the package of the target distribution
+        from scipy.stats import weibull_min
+
         # Create weibull distribution object
         weibull_dist = weibull_min(c=1.4, scale=input_img_var)
 
@@ -182,6 +191,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "beta1"):
+        # Import the package of the target distribution
+        from scipy.stats import beta
+
         # Create beta distribution object
         beta_dist = beta(0.5, 0.5)
 
@@ -202,6 +214,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "beta2"):
+        # Import the package of the target distribution
+        from scipy.stats import beta
+
         # Create beta distribution object
         beta_dist = beta(5, 1)
 
@@ -221,6 +236,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "lognorm"):
+        # Import the package of the target distribution
+        from scipy.stats import lognorm
+
         # Create lognorm distribution object
         lognorm_dist = lognorm(1)
 
@@ -239,6 +257,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "laplace"):
+        # Import the package of the target distribution
+        from scipy.stats import laplace
+
         # Create lognorm distribution object
         laplace_dist = laplace(4)
 
@@ -258,6 +279,9 @@ def main(argv):
         target_hist /= total
 
     elif (target_name == "beta3"):
+        # Import the package of the target distribution
+        from scipy.stats import beta
+
         # Create beta distribution object
         beta_dist = beta(8, 2)
 
@@ -308,45 +332,45 @@ def main(argv):
 
         lookup[i] = min_j
 
-    # Create the target image using the img's pixel values and the lookup table
-    spec_img = img.copy()
+    # Create the transformed image using the img's pixel values and the lookup table
+    trans_img = img.copy()
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            spec_img[i][j] = lookup[img[i][j]]
+            trans_img[i][j] = lookup[img[i][j]]
 
-    # Write the target image to a png file
-    cv2.imwrite('images/target.png', spec_img)
+    # Write the transformed image to a png file
+    cv2.imwrite('images/transformed.png', trans_img)
 
     # Plot the input image and the target image in one plot
-    input_img = cv2.resize(img, (0,0), None, 0.25, 0.25)
-    target_img = cv2.resize(spec_img, (0,0), None, 0.25, 0.25)
-    numpy_horiz = np.hstack((input_img, target_img))
-    cv2.imshow('Input image ------------------------ Target image', numpy_horiz)
+    input_img_resized = cv2.resize(img, (0,0), None, 0.25, 0.25)
+    trans_img_resized = cv2.resize(trans_img, (0,0), None, 0.25, 0.25)
+    numpy_horiz = np.hstack((input_img_resized, trans_img_resized))
+    cv2.imshow('Input image ------------------------ Trans image', numpy_horiz)
     cv2.waitKey(25)
 
-    # Calculate the specificated images' histogram
-    spec_hist = cv2.calcHist([spec_img], [0], None, [256], [0,256])
+    # Calculate the transformed image's histogram
+    trans_hist = cv2.calcHist([trans_img], [0], None, [256], [0,256])
 
-    # Normalize the specificated histogram
-    total = sum(spec_hist)
-    spec_hist /= total
+    # Normalize the transformed image's histogram
+    total = sum(trans_hist)
+    trans_hist /= total
 
-    # Calculate the cum input histogram
-    cum_input_hist2 = np.ndarray(shape=(256,1))
+    # Convert cum_input_hist to matrix for plotting
+    cum_input_hist_matrix = np.ndarray(shape=(256,1))
     for i in range(0,256):
-        cum_input_hist2[i][0] = cum_input_hist[i]
+        cum_input_hist_matrix[i][0] = cum_input_hist[i]
 
-    # Calculate the cum transformed histogram
-    cum_spec_hist = np.ndarray(shape=(256,1))
+    # Calculate the cum transformed histogram for plotting
+    cum_trans_hist = np.ndarray(shape=(256,1))
     cum = 0.0
     for i in range(0,256):
-        cum += spec_hist[i][0]
-        cum_spec_hist[i][0] = cum
+        cum += trans_hist[i][0]
+        cum_trans_hist[i][0] = cum
 
-    cum_target_hist3 = np.ndarray(shape=(256,1))
-    cum = 0.0
+    # Convert cum_target_hist to matrix for plotting
+    cum_target_hist_matrix = np.ndarray(shape=(256,1))
     for i in range(0,256):
-        cum_target_hist3[i][0] = cum_target_hist[i]
+        cum_target_hist_matrix[i][0] = cum_target_hist[i]
 
     plt.subplot(2, 3, 1)
     plt.title('Original hist')
@@ -354,7 +378,7 @@ def main(argv):
 
     plt.subplot(2, 3, 2)
     plt.title('Original cdf')
-    plt.plot(cum_input_hist2)
+    plt.plot(cum_input_hist_matrix)
 
     plt.subplot(2, 3, 3)
     plt.title('Target pdf')
@@ -362,15 +386,15 @@ def main(argv):
 
     plt.subplot(2, 3, 4)
     plt.title('Transformed hist')
-    plt.plot(spec_hist)
+    plt.plot(trans_hist)
 
     plt.subplot(2, 3, 5)
     plt.title('Transformed cdf')
-    plt.plot(cum_spec_hist)
+    plt.plot(cum_trans_hist)
 
     plt.subplot(2, 3, 6)
     plt.title('Target cdf')
-    plt.plot(cum_target_hist3)
+    plt.plot(cum_target_hist_matrix)
     plt.show()
 
 if __name__ == "__main__":
